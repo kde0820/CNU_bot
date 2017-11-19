@@ -11,7 +11,7 @@ E_URL = "http://e-learn.cnu.ac.kr/"
 S_URL = "http://e-learn.cnu.ac.kr/lms/mypage/schedule/doListView.dunet"
 
 username = '201502022'  # 아이디
-password = 'k1d2e3135246'  # 패스워드
+password = ''  # 패스워드
 
 E_hw = []
 
