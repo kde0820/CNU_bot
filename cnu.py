@@ -5,19 +5,17 @@ import requests
 from bs4 import BeautifulSoup
 import pymysql
 
-def inputData(list,list2,list3,list4):
+
+def inputData(list1, list2, list3, list4):
     cnx = pymysql.connect(user='root', password='1234qwer', host='110.35.41.233', port='13306', database='cnu_bachelor_info')
     cursor = cnx.cursor()
-    print(list[0])
-    stmt = "INSERT INTO cnu_news (title, link, writer, publish_date) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE title=VALUES(title)"
-    stmt2 = "INSERT INTO cnu_h_info (title, link, writer, publish_date) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE title=VALUES(title)"
-    stmt3 = "INSERT INTO cnu_e_info (title, link, writer, publish_date) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE title=VALUES(title)"
-    stmt4 = "INSERT INTO cnu_job(title, link, writer, publish_date) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE title=VALUES(title)"
+    print(list1[0])
+    stmt = "INSERT INTO board (bid, title, link, writer, pdate) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE title=VALUES(title)"
 
-    cursor.executemany(stmt, list)
-    cursor.executemany(stmt2, list2)
-    cursor.executemany(stmt3, list3)
-    cursor.executemany(stmt4, list4)
+    cursor.executemany(stmt, list1)
+    cursor.executemany(stmt, list2)
+    cursor.executemany(stmt, list3)
+    cursor.executemany(stmt, list4)
 
     cnx.commit()
     cnx.close()
@@ -42,21 +40,21 @@ def main():
     for i in range(1, 11):  # 10 페이지 가져옴
         URL = NEWS + str(i)  # 기본 URL에 페이지 번호를 붙여줌
         soup = getURL(URL)
-        crawlling(soup, CNU_news)
+        crawlling(soup, CNU_news, 1)
 
         URL = H_INFO + str(i)
         soup = getURL(URL)
-        crawlling(soup, CNU_h_info)
+        crawlling(soup, CNU_h_info, 2)
 
         URL = E_INFO + str(i)
         soup = getURL(URL)
-        crawlling(soup, CNU_e_info)
+        crawlling(soup, CNU_e_info, 3)
 
         URL = JOBS + str(i)
         soup = getURL(URL)
         crawllingJobs(soup, CNU_job)
 
-    inputData(CNU_news,CNU_h_info,CNU_e_info,CNU_job)
+    inputData(CNU_news, CNU_h_info, CNU_e_info, CNU_job)
     print("ok")
 
 
@@ -69,7 +67,7 @@ def getURL(URL):
 
 
 # 새소식, 학사 정보, 교육 정보 크롤링
-def crawlling(soup, data_list):
+def crawlling(soup, data_list, board):
     table = soup.find('div', {'class': "board_list"})
     tbody = table.find('tbody')
     tr_list = tbody.find_all('tr')
@@ -85,7 +83,7 @@ def crawlling(soup, data_list):
         writer = c_center.get_text()
         date = c_date.get_text()
 
-        query_data = (title, link, writer, date)
+        query_data = (board, title, link, writer, date)
         data_list.append(query_data)
 
 
@@ -107,8 +105,9 @@ def crawllingJobs(soup, data_list):
         writer = td_write.get_text()  # 작성자
         date = td_date.get_text()  # 작성일
 
-        query_data = (title, link, writer, date)
+        query_data = (4, title, link, writer, date)
         data_list.append(query_data)
+
 
 if __name__ == "__main__":
     main()

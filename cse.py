@@ -16,16 +16,15 @@ CSE_g_info = []
 CSE_s_info = []
 
 
-def inputData(list,list2,list3):
+def inputData(list1, list2, list3):
     cnx = pymysql.connect(user='root', password='1234qwer', host='110.35.41.233', port='13306', database='cnu_bachelor_info')
     cursor = cnx.cursor()
     print(list[0])
-    stmt = "INSERT INTO cse_info (title, link, writer, c_date) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE title=VALUES(title)"
-    stmt2 = "INSERT INTO cse_g_info (title, link, writer, c_date) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE title=VALUES(title)"
-    stmt3 = "INSERT INTO cse_s_info (title, link, writer, c_date) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE title=VALUES(title)"
-    cursor.executemany(stmt, list)
-    cursor.executemany(stmt2, list2)
-    cursor.executemany(stmt3, list3)
+    stmt = "INSERT INTO board (bid, title, link, writer, pdate) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE title=VALUES(title)"
+
+    cursor.executemany(stmt, list1)
+    cursor.executemany(stmt, list2)
+    cursor.executemany(stmt, list3)
 
     cnx.commit()
     cnx.close()
@@ -37,25 +36,25 @@ def main():
         URL = INFO + str(i)  # 기본 URL에 페이지 번호를 붙여줌
         soup = getURL(URL)
         if (i == 1):  # 게시판에서 공지로 등록되어있는 글은 한번만 저장함
-            crawlling_notice(soup, CSE_info)
+            crawlling_notice(soup, CSE_info, 5)
         else:
-            crawlling(soup, CSE_info)
+            crawlling(soup, CSE_info, 5)
 
         '''일반소식'''
         URL = G_INFO + str(i)
         soup = getURL(URL)
         if (i == 1):
-            crawlling_notice(soup, CSE_g_info)
+            crawlling_notice(soup, CSE_g_info, 6)
         else:
-            crawlling(soup, CSE_g_info)
+            crawlling(soup, CSE_g_info, 6)
 
         '''사업단소식'''
         URL = S_INFO + str(i)
         soup = getURL(URL)
         if (i == 1):
-            crawlling_notice(soup, CSE_s_info)
+            crawlling_notice(soup, CSE_s_info, 7)
         else:
-            crawlling(soup, CSE_s_info)
+            crawlling(soup, CSE_s_info, 7)
 
     inputData(CSE_info, CSE_g_info, CSE_s_info)
 
@@ -75,7 +74,7 @@ def del_blank(tag):
 
 
 # 페이지 소스 크롤링
-def crawlling(soup, data_list):
+def crawlling(soup, data_list, board):
     table = soup.find('div', {'class': 'bd_lst_wrp'})
     tbody = table.find('tbody')
     tr_list = tbody.find_all('tr')
@@ -92,12 +91,12 @@ def crawlling(soup, data_list):
             writer = c_author.get_text()  # 작성자
             date = c_date.get_text()  # 작성일
 
-            query_data = (title, link, writer, date)  # 제목,링크,작성자,작성일 로 구성된 데이터
+            query_data = (board, title, link, writer, date)  # 제목,링크,작성자,작성일 로 구성된 데이터
             data_list.append(query_data)  # 데이터를 리스트에 추가
 
 
 # 게시판의 공지글만 가져와서 리스트에 추가
-def crawlling_notice(soup, data_list):
+def crawlling_notice(soup, data_list, board):
     table = soup.find('div', {'class': 'bd_lst_wrp'})
     tbody = table.find('tbody')
     tr_list = tbody.find_all('tr')
@@ -113,7 +112,7 @@ def crawlling_notice(soup, data_list):
         writer = c_author.get_text()  # 작성자
         date = c_date.get_text()  # 작성일
 
-        query_data = (title, link, writer, date)  # 제목, 링크, 작성자, 작성일 로 구성된 데이터
+        query_data = (board, title, link, writer, date)  # 제목, 링크, 작성자, 작성일 로 구성된 데이터
         data_list.append(query_data)  # 데이터를 리스트에 추가
 
 

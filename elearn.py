@@ -20,7 +20,7 @@ def inputData(list):
     cnx = pymysql.connect(user='root', password='1234qwer', host='110.35.41.233', port='13306', database='cnu_bachelor_info')
     cursor = cnx.cursor()
     print(list[0])
-    stmt = "INSERT INTO e_ref (title, r_date) VALUES (%s, %s) ON DUPLICATE KEY UPDATE title=VALUES(title)"
+    stmt = "INSERT INTO schedule (title, info) VALUES (%s, %s) ON DUPLICATE KEY UPDATE title=VALUES(title)"
     cursor.executemany(stmt, list)
 
     cnx.commit()
@@ -40,7 +40,7 @@ def main():
 
     crawlling_hw(s_source, E_hw)  # 일정 목록
 
-    # inputData(E_hw)
+    inputData(E_hw)
 
 
 # 이러닝 사이트에 로그인
@@ -91,6 +91,7 @@ def crawlling_hw(html_source, data_list):
         query_data = (title, info)
         data_list.append(query_data)
     print(data_list)
+
 
 # 해당 태그의 텍스트에서 공백을 제거하여 리턴
 def del_blank(tag):
